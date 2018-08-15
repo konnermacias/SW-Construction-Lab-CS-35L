@@ -1,0 +1,38 @@
+Konner Macias | 004603916
+Assignment 3 - hw3.txt
+TA: Shenkar
+
+Q1. "case_long_iso_time_style" was not necessary, since control flow
+never passed through it. In fact, it was repeated twice.
+
+Q2. The patch would have issues in other countries where users don't
+understand English-format dates because the patch removes the users 
+locale setting. So it wont care about what the user was used to before.
+
+Q3. After doing:
+$ vim randline.py
+
+and pasting in the contents into the file, I ran
+
+$ python randline.py /dev/null
+
+Which gave me this error:
+IndexError: list index out of range
+
+This indexError occured because inside of the random.choice function, 
+it will raise an IndexError if the seq is empty. So for handling empty
+files, this will always be the case since we didn't specify that the
+number of lines is 0
+
+Q4. I did:
+$ python3 randline.py
+which gave me the error:
+  File "randline.py", line 65
+    except IOError as (errno, strerror):
+                      ^
+SyntaxError: invalid syntax
+
+This is invalid syntax for python3 because it no longer allows for
+comma syntax, it is now deprecated. (fewf,ewfqewfq) is an example of
+whats called a tuple and python3 does not have tuple automatic
+unpacking. 

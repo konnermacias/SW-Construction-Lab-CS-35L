@@ -1,0 +1,72 @@
+#!/bin/sh
+
+cd $1 # user will provide directory name as first arg
+FILE1=1
+for f1 in .* *
+do
+	FILE2=1
+	if [ -L "$f1" ]
+	thenr
+	continue
+	elif [ -f "$f1" ]
+	then
+	if [ -r "$f1" ]
+	then
+		for f2 in .* *
+		do
+		if [ $FILE1 -gt $FILE2 ]
+		then
+			if [ -L "$f2" ]
+			then
+				continue
+			elif [ -f "$f2" ]
+			then
+			cmp -s ./"$f1" ./"$f2"
+			TEST=$?
+			if [ "$TEST" -eq 0 ]
+			then
+				f1_1 = $(echo -- "$f1" | cut -c1)
+				f2_1 = $(echo -- "$f2" | cut -c1)
+				dot=.
+				if [ $(expr "${f1_1}"="${dot}") -eq 1]
+				then
+                   			 if [ $(expr "${f2_1}" = "${dot}") -eq 1 ]
+                		then
+                    			f1_2=$(echo -- "$f1" | cut -c2-)
+                    			f2_2=$(echo -- "$f2" | cut -c2-)
+                    			if [ $(expr "${f1_2}" \<= "${f2_2}") -eq 1 ]
+                    			then
+                    			rm -- "$f2"
+                    			ln -- "$f1" "$f2"
+                    			else
+                    			rm -- "$f1"
+                    			ln -- "$f2" "$f1"
+                    			fi
+                		else
+                    			rm -- "$f2"
+                    			ln -- "$f1" "$f2"
+                    			continue
+                		fi
+                		elif [ $(expr "${f2_1}" = "${dot}") -eq 1 ]
+                		then
+                		rm -- "$f1"
+                		ln -- "$f2" "$f1"
+                		elif [ $(expr "${f1}" \<= "${f2}") -eq 1 ]
+                		then
+                		rm -- "$f2"
+                		ln -- "$f1" "$f2"
+                		else
+                		rm -- "$f1"
+                		ln -- "$f2" "$f1"
+                		fi
+            		fi
+            		fi
+        	fi
+        	FILE2=`expr "$FILE2" + 1`
+        	done
+    	else
+        	echo "The file $f1 could not be read."
+    	fi
+    	fi
+    	FILE1=`expr "$FILE1" + 1`
+done 

@@ -1,0 +1,18 @@
+Konner Macias | 004603916
+TA: Shankar
+==============================
+
+The bottom left window displays info on the selected commit and its
+ChangeLog details.
+
+The top left window will show the history of the git repository and
+shows where branches split and merge.
+
+The top middle is name and email of author of each git commit
+
+The top right is the date of the action on the top middle window.
+
+The bottom right window is for files that were affected for the 
+commit.   
+
+==============================

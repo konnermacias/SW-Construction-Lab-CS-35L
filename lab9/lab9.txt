@@ -1,0 +1,230 @@
+Konner Macias | 004603916
+Lab 9: Change management
+TA: Shankar
+
+==============================
+
+""I worked on lnxsrv03 for this assignment""
+
+1. To get a copy Diffutils repository, clone it.
+
+$ mkdir gitproject
+$ cd gitproject
+$ git clone ~eggert/src/gnu/diffutils
+
+==============================
+
+2. To get a log of changes to Diffutil's master branch, I entered
+the diffutils directory and used the git log command:
+
+$ cd diffutils
+$ git log > ../git-log.txt
+
+==============================
+
+3. Generate list of tags using "git tag":
+
+$ git tag > ../git-tag.txt
+
+==============================
+
+4. Find the commit
+
+$ cd ..
+$ vim git-log.txt
+?like this' or 
+
+Then I copied the commit ID at the top and ran:
+
+$ cd diffutils
+$ git show 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f
+$ git format-patch -1 --stdout 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f
+> quote-patch.txt
+
+==============================
+
+5. Check out version 3.0 of Diffutils from your repository
+
+$ git checkout v3.0
+
+Note: checking out 'v3.0'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -b with the checkout command again. Example:
+
+  git checkout -b new_branch_name
+
+HEAD is now at 022cd5c... version 3.0
+
+==============================
+
+6. Use Patch command to apply quote-patch.txt to v3.0
+
+$ patch -p1 < quote-patch.txt
+
+I had to press RETURN and y several times to bypass the cases it is 
+not able to figure out what file to patch.
+
+==============================
+
+7. git status
+
+HEAD detached at v3.0
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   NEWS
+	modified:   README
+	modified:   TODO
+	modified:   doc/diagmeet.note
+	modified:   ms/config.bat
+	modified:   ms/config.site
+	modified:   po/en.po
+	modified:   src/analyze.c
+	modified:   src/cmp.c
+	modified:   src/context.c
+	modified:   src/diff.c
+	modified:   src/diff.h
+	modified:   src/diff3.c
+	modified:   src/dir.c
+	modified:   src/ifdef.c
+	modified:   src/io.c
+	modified:   src/sdiff.c
+	modified:   src/side.c
+	modified:   src/system.h
+	modified:   src/util.c
+	modified:   tests/help-version
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	NEWS.orig
+	README-hacking.orig
+	README-hacking.rej
+	README.orig
+	README.rej
+	cfg.mk.orig
+	cfg.mk.rej
+	ms/config.site.orig
+	quote-patch.txt
+	src/cmp.c.orig
+	src/context.c.orig
+	src/diff.c.orig
+	src/diff.c.rej
+	src/diff.h.orig
+	src/diff3.c.orig
+	src/diff3.c.rej
+	src/dir.c.orig
+	src/sdiff.c.orig
+	src/system.h.orig
+	src/util.c.orig
+	tests/help-version.orig
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+==============================
+
+8. learn how to use functions vc-diff and vc-revert.
+
+We learn that vc-revert reverts changed files othan .c files.
+
+==============================
+
+9. Use emacs to revert all changes to files othan .c files. Then,
+undo all the changes to .c files other than changes to character 
+string constants, as the character-string changes are the only 
+changes I want.
+
+For every non .c file between NEWS and tests/help-version, I used 
+$ emacs <file_name> then within the emacs window, I used 
+C-x v u to revert the changes within each file.
+
+For every .c file, I had to use emacs <file_name>
+
+Within emacs, I did: C-x v = to begin the buffer
+
+Within the buffer, I did C-c C-a if there was a chunk that had a `
+inside of a comment. Otherwise, I skipped to the next chunk using 
+M-n. After making my changes, I went into the code using C-x-o and
+saved by C-x C-c. 
+
+After doing $ git status again, I see only 6 files remaining:
+	modified:   src/cmp.c
+	modified:   src/diff.c
+	modified:   src/diff3.c
+	modified:   src/dir.c
+	modified:   src/sdiff.c
+	modified:   src/util.c
+
+==============================
+
+10. Use emacs to examine the files src/*.ref
+
+This required me diving intp diff3.c and diff.c and scanning through
+the areas where the .rej indicated line numbers and making manual 
+edits of changing ` to '.
+
+==============================
+
+11. Remove all untracked files that git status warns about.
+
+$ git status
+$ git clean -f
+$ git status
+
+==============================
+
+12. Put diff into a file quote-3.0-patch.txt
+
+$ git diff > quote-3.0-patch.txt
+
+==============================
+
+13. Check out README-hacking and build modified version of Diffutils
+
+$ vim README-hacking
+
+Then I ran:
+
+$ ./bootstrap
+$ ./configure
+$ make
+$ make check
+
+$ diff . -
+$ diff --help
+
+These both gave the right quote mark. 
+
+==============================
+
+14. Do a sanity test, make the diffutils directories
+
+$ cd ..
+$ mkdir diffutils-3.0
+$ mkdir diffutils-3.0-patch
+
+Now 
+$ git clone ~eggert/src/gnu/diffutils diffutils-3.0
+$ cd  diffutils-3.0
+$ git checkout v3.0
+$ cp -r diffutils diffutils-3.0-patch
+
+$ diffutils-3.0-patch/diff -pru diffutils-3.0 diffutils-3.0-patch/ > \
+quote-3.0-test.txt
+
+==============================
+
+15. Use diff to compare contents
+
+$ diff quote-3.0-test quote-3.0-patch.txt
+
+There are only differences between the quotation marks and grave 
+characters, so patch worked!
+
+==============================

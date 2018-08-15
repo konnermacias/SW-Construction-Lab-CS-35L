@@ -1,0 +1,93 @@
+Konner Macias | 004603916
+Lab 5: System call programming and debugging
+TA: Shenkar
+==============================
+1. Write tr2b.c
+
+Notes: 
+After reading the note on piazza about \377 getting caught in a char,
+I changed my code from char curr = getchar(); to int curr = getchar()
+to avoid the trap.
+
+I created a char array called asciiRep to help with the
+transliteration.
+==============================
+2. Write tr2u.c
+
+To compile I did:
+$ gcc -std=c11 tr2b.c -o tr2b
+$ gcc -std=c11 trbu.c -o tr2u
+==============================
+3. Use strace to compare system calls
+
+To create the huge input file, I did:
+head --bytes=5000000 /dev/urandom > huge.txt
+
+(a) Compare system calls when copying one file to another
+
+I used the command:
+$ strace -o strace_output_b ./tr2b 'k' 'm' < huge.txt > buf.txt
+$ strace -o strace_output_u ./tr2u 'k' 'm' < huge.txt > unbuf.txt
+
+To check if these files were identical:
+$ diff buf.txt unbuf.txt -s
+
+These files were identical.
+
+To check number of system calls,
+$ cat strace_output_b | wc -l
+1252
+$ cat strace_output_u | wc -l
+10000033
+
+The tr2u had a lot more system calls.
+
+(b) Copy file to your terminal
+
+$ strace -o strace_output_bt ./tr2b 'k' 'm' < huge.txt
+$ strace -o strace_output_ut ./tr2u 'k' 'm' < huge.txt
+
+$ cat strace_output_bt | wc -l
+20463
+$ cat strace_output_ut | wc -l
+10000026
+
+We see that the number of system calls for tr2b greatly increased yet
+the number of system calls for tr2u stays the same. The reason for
+the increased system calls for tr2b is that it now has to print on 
+the terminal screen.
+==============================
+4. Use time to measure how much faster one program is
+
+Compare when copying one file to another
+
+$ time ./tr2b 'k' 'm' < huge.txt > t_buf.txt
+real	0m0.153s
+user	0m0.100s
+sys	0m0.006s
+
+$ time ./tr2u 'k' 'm' < huge.txt > t_unbuf.txt
+real	0m9.787s
+user	0m1.253s
+sys	0m8.485s
+
+Compare when copying file to terminal
+
+$ time ./tr2b 'k' 'm' < huge.txt
+real	0m2.788s
+user	0m0.130s
+sys	0m0.075s
+
+$ time ./tr2u 'k' 'm' < huge.txt
+real	0m8.310s
+user	0m1.205s
+sys	0m7.092s
+
+We relationship between the buffered and unbuffered appears to stay
+the same with unbuffered being much slower than buffered IO. Note the 
+'sys' times, unbuffered IO almost took 1000x slower. This shows just
+how fast getchar and putchar are.
+
+When copying a file to another, the IO is faster for buffered IO 
+compared to copying file to terminal. Main lesson, use buffered IO
+to decrease run time and the number of system calls.

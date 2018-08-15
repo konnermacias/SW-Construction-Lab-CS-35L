@@ -1,0 +1,17 @@
+2018-02-08  Konner Quentin Macias  <classkon@lnxsrv09.seas.ucla.edu>
+
+        * ~/Documents/CS_35L/lab4/coreutils-with-bug/lib/timespec.h (timespec_cmp):
+        This will prevent integer overflow and handle older times better.
+
+--- lib/timespec.h      2018-02-08 13:16:08.504958000 -0800
++++ timespec.h  2018-02-08 13:18:13.780433000 -0800
+@@ -45,8 +45,7 @@
+ static inline int
+ timespec_cmp (struct timespec a, struct timespec b)
+ {
+-    int diff = a.tv_sec - b.tv_sec;
+-    return diff ? diff : a.tv_nsec - b.tv_nsec;
++    return a.tv_sec > b.tv_sec ? 1 : (a.tv_sec < b.tv_sec ? -1 : a.tv_nsec - b.tv_nsec);
+ }
+
+ # if ! HAVE_DECL_NANOSLEEP

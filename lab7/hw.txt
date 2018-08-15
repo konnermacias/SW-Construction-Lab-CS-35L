@@ -1,0 +1,27 @@
+Konner Macias | 004603916
+TA: Shenkar
+Homework
+==============================
+1. Even if the other teams really had been observing all the bytes
+going across the network, the network would still be secure since 
+the private key needed to decrypt the data is never sent across the
+network.
+
+(1) Assuming the other team kept track of our keystrokes, my answer
+would change since now when we enter our password when doing ssh, the
+other team will learn the private key password needed to decrypt the 
+data. 
+
+(2) If the other teams temporarily had physical control of the USB
+then my answer would change. With this control, the other team could
+gain access to the .ssh folder which contain the private key needed
+to decrypt the data. The network is no longer secure.
+==============================
+2. The command gpg --verify doesn't really verify that you personally
+created the tar file in question since it only checks the signature of
+the file. If the data was intercepted, changed and signed by some 
+person with a different public key, then the command gpg --verify will
+reveal to the true intended receiver that the owner was this person
+who intercepted the data. To fix this problem, we would need a trusted
+third party to verify the origin/true creator of the file. 
+

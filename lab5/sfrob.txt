@@ -1,0 +1,168 @@
+Konner Macias | 004603916
+Homework: Encrypted sort revisited
+==============================
+Performance comparison
+
+I will compare the overall performance of sfrob, sfrobu, sfrobs,
+sfrobu -f, and  sfrobs -f. 
+
+I created an input file with the text: "Long live eggman" repeated a
+variable number of time.
+
+Repeated 10x:
+$ time ./sfrob < input2.txt
+real	0m0.003s
+user	0m0.000s
+sys	0m0.001s
+
+$ time ./sfrobu < input2.txt
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+
+$ time ./sfrobu -f < input2.txt
+real	0m0.002s
+user	0m0.000s
+sys	0m0.002s
+
+$ time ./sfrobs < input2.txt
+real	0m0.007s
+user	0m0.001s
+sys	0m0.007s
+
+$ time ./sfrobs -f < input2.txt
+real	0m0.008s
+user	0m0.001s
+sys	0m0.007s
+==============================
+Repeated 100x:
+
+$ time ./sfrob < input2.txt
+real    0m0.002s
+user    0m0.001s
+sys     0m0.001s
+
+$ time ./sfrobu < input2.txt
+real    0m0.004s
+user    0m0.001s
+sys     0m0.002s
+
+$ time ./sfrobu -f < input2.txt
+real	0m0.003s
+user	0m0.001s
+sys	0m0.001s
+
+$ time ./sfrobs < input2.txt
+real	0m0.007s
+user	0m0.001s
+sys	0m0.007s
+
+$ time ./sfrobs -f < input2.txt
+real	0m0.008s
+user	0m0.005s
+sys	0m0.004s
+==============================
+Repeated 1000x:
+
+$ time ./sfrob < input2.txt
+real    0m0.006s
+user    0m0.002s
+sys     0m0.002s
+
+$ time ./sfrobu < input2.txt
+real    0m0.016s
+user    0m0.005s
+sys     0m0.010s
+
+$ time ./sfrobu -f < input2.txt
+real	0m0.017s
+user	0m0.002s
+sys	0m0.014s
+
+$ time ./sfrobs < input2.txt
+real	0m0.008s
+user	0m0.003s
+sys	0m0.006s
+
+$ time ./sfrobs -f < input2.txt
+real	0m0.007s
+user	0m0.003s
+sys	0m0.006s
+==============================
+Repeated 10000x:
+
+$ time ./sfrob < input2.txt
+real	0m0.040s
+user	0m0.026s
+sys	0m0.012s
+
+$ time ./sfrobu < input2.txt
+real	0m0.166s
+user	0m0.038s
+sys	0m0.126s
+
+
+$ time ./sfrobu -f < input2.txt
+real	0m0.141s
+user	0m0.036s
+sys	0m0.102s
+
+$ time ./sfrobs < input2.txt
+real	0m0.022s
+user	0m0.007s
+sys	0m0.012s
+
+$ time ./sfrobs -f < input2.txt
+real	0m0.022s
+user	0m0.011s
+sys	0m0.012s
+==============================
+Repeated 100000x:
+
+$ time ./sfrob < input2.txt
+real	0m1.028s
+user	0m0.187s
+sys	0m0.128s
+
+$ time ./sfrobu < input2.txt
+real	0m1.934s
+user	0m0.414s
+sys	0m1.038s
+
+$ time ./sfrobu -f < input2.txt
+real	0m1.975s
+user	0m0.364s
+sys	0m1.106s
+
+$ time ./sfrobs < input2.txt
+real	0m5.117s
+user	0m0.055s
+sys	0m0.076s
+
+$ time ./sfrobs -f < input2.txt
+real	0m0.419s
+user	0m0.096s
+sys	0m0.084s
+==============================
+Num Comparisons:
+
+# lines	# comparisons
+
+10	64
+100	1087
+1000	15916
+10000	207346
+100000	2568479
+
+This gives us a function, f(x) for number of comparisons against
+number of lines in input file.
+
+f(x) = 25.8 * x - 14662
+
+This is a regression line determined online, the y-int should not be
+interpreted in this case since x was only given as 10 or greater. 
+
+The goodness of fit of this function has a R square valued of 0.9997
+=============================
+We see that the script sfrobs -f seemed to run the fastest against
+larger input.

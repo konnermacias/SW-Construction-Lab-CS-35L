@@ -1,0 +1,110 @@
+Konner Macias | 004603916
+Assignment 3 - Modifying and rewriting software
+TA - shenkar
+=========================
+1. First we had to grab Coreutils 7.6
+
+I logged into my directory on the SEASnet server and used:
+
+$ wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-7.6.tar.gz
+
+To untar it, I did:
+
+$ tar -xzvf coreutils-7.6.tar.gz
+
+I changed my directory to the coreutils-7.6 folder
+
+$ cd coreutils-7.6
+================================
+2. Now we must compile and install my copy of Coreutils
+
+I looked at the INSTALL file, and saw that in order to install and
+have a directory as the installation prefix:
+
+$./configure --prefix=/u/eng/class/classkon/Documents/CS_35L/lab3/coreutils-7.6
+$ make; make install
+==============================
+3. Now let's reproduce the bug problem
+
+Generate the desired locale:
+$ export LC_ALL='en_US.UTF-8'
+
+Now let's check out the problem, we enter /bin and do:
+
+$ cd bin
+$ ./ls -l /bin/bash
+
+*I used -l to use the long listing format of ls
+
+This gave me:
+-rwxr-xr-x 1 root root 960632 2017-08-03 06:36 /bin/bash
+
+Which was the problem we wanted.
+==============================
+4. Now we must apply Brady's patch
+
+Go into coreutils-7.6's source folder
+$ cd ~/coreutils-7.6/src
+
+Create the patch file and copy paste Brady's patch into the file:
+
+$ touch ls.patch
+
+Then I pasted the contents.
+
+To apply the patch file, I did
+
+$ patch -p0 < ls.patch
+
+It asked which file to patch, and I inputted ls.c
+
+To check that the patch worked, I did
+$ ls -l /bin/bash
+Which gave:
+-rwxr-xr-x 1 root root 960632 Aug  3  2017 /bin/bash
+Which works out great.
+=============================
+5. Type the make command at top level of source tree
+$ make
+
+make all-recursive: this will go through all the relevant directories
+where the patch was applied and check if there was any change after
+the patch was applied.
+
+make all-am: all-am is a switch setting used during the build process.
+This changed items within the /src and /man
+==============================
+6. Make sure your change fixes the bug. Test that modified ls works
+
+-> Test on a file that has been recently modified:
+
+$ touch newFile
+
+Then to check against the old way,
+$ ./coreutils-7.6/bin/ls -l
+-rw-r--r--  1 classkon class        0 2018-02-03 14:08 newfile
+
+To check against the updated patch,
+$ ./coreutils-7.6/src/ls -l
+-rw-r--r--  1 classkon class        0 Feb  3 14:08 newfile
+
+which works perfect!
+
+-> Test on a file that is over a year old.
+
+Let's create an old file using touch
+
+$ touch -t 9702202344 bday
+
+*what a special day in history that was...jk*
+
+Let's text against broken version again:
+$ ./coreutils-7.6/bin/ls -l
+-rw-r--r--  1 classkon class        0 1997-02-20 23:44 bday
+
+Now check against fixed version
+$ ./coreutils-7.6/src/ls -l
+-rw-r--r--  1 classkon class        0 Feb 20  1997 bday
+
+Everything works great again
+==============================

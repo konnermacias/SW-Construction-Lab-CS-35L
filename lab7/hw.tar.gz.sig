@@ -1,0 +1,9 @@
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iJwEAAECAAYFAlqgWTIACgkQrZtpACpjZFy2aQQAgXTszumnvnmExy5Za0ABgoOH
+WoI615AwAtx3Qsf91/yv8bGztdy4hIW62iz6Cr6U8j2fQK7XN1nIx9Nj69G1TF2f
+gvMgziAgl1UhB3PljUehubvzx4fQUT+4ung/nlJOsWPTgHh5+u0D7Xl2ScmC+0bl
+D7Nv/zPZYmveRThMM1M=
+=mQOg
+-----END PGP SIGNATURE-----

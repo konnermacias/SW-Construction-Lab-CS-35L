@@ -1,0 +1,98 @@
+Konner Macias | 004603916
+TA: Shankar
+==============================
+
+1. $ vim hw9.txt
+
+==============================
+
+2. Checkout verion 3.0 into a branch named "quote" 
+$ cd diffutils
+$ git checkout v3.0 -b quote
+
+==============================
+
+3. Install change into new branch
+
+$ patch -p1 < quote-3.0-patch.txt
+
+==============================
+
+4. Learn how to use Emacs add-change-log-entry-other-window
+
+Got it.
+
+==============================
+
+5. Use this emacs function to compose an approriate changelog
+
+To check out the .c files I need to use this command on, I did:
+
+$ git status
+For each of the files, run:
+
+$ emacs <file_name>
+C-x 4 a
+
+I gave each one the same message: replaced ` to '
+
+==============================
+
+6. Commit changes to new branch
+
+$ git add .
+$ git commit -F ChangeLog
+
+==============================
+
+7. See below
+
+$ git format-patch -1 --stdout > formatted-patch.txt
+
+I did not have to fix things by hand afterwards.
+
+==============================
+
+8. Next I created a branch for my partner
+
+$ git checkout branch -b 'partner' 'v3.0'
+
+Then run the patch
+
+$ git am cavan-patch.txt
+
+Patch worked so I then I did:
+
+$ ./bootstrap
+$ ./configure
+$ make
+$ make check
+
+Then I verified using $ diff . - and $ diff --help again.
+
+==============================
+
+9. Verify that ChangeLog works
+
+$ make distdir
+
+To inspect the resulting file, I entered into the newly created folder
+and checked the ChangeLog.
+
+2018-03-16  Konner Quentin Macias  <classkon@lnxsrv09.seas.ucla.edu>
+
+        * util.c: replaced ` to '
+	... the rest of the comments ...
+
+==============================
+
+10. gitk
+
+I did:
+$ ssh -X classkon@lnxsrv09.seas.ucla.edu
+$ cd ~eggert/src/gnu/emacs
+$ gitk
+
+Then I took the screenshot and did the required description.
+
+==============================

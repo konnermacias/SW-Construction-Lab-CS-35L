@@ -1,0 +1,97 @@
+Konner Macias | 004603916
+log.txt
+Partner: Cavan Stewart
+==============================
+To start this assignment, after connecting to the BeagleBone, I did:
+
+$ sudo ssh root@192.168.7.2
+
+Then I did:
+$ sudo apt-get update
+$ sudo apt-get install openssh-server
+$ sudo apt-get install openssh-client
+
+We will be using openssh to connect to the other hosts. Now my partner
+and I had both openssh-server and openssh-client.
+
+I personally had troubles connecting to internet, so I did:
+
+$ sudo connmanctl
+Then within that, I did:
+connmanctl> enable wifi
+connmanctl> scan wifi
+connmanctl> services
+connmanctl> agent on
+
+connect wifi_2cf7f1062d5e_47726174617461_managed_psk
+==============================
+I will be acting as the client. 
+
+Now, I obtained the IP address of my partner's computer.
+$ root@beaglebone:~# ssh konner@192.168.0.100
+
+He had already created a user under the name of konner with password
+'macias'. After confirming my desire to connect, I created a file:
+
+$ vim file1.txt
+
+In it, I put: "hackerman"
+
+Next, I did: 
+$ ssh keygen
+
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/konner//.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/konner//.ssh/id_rsa.
+Your public key has been saved in /home/konner//.ssh/id_rsa.pub.
+The key fingerprint is:
+66:a4:ae:07:ea:58:ef:eb:25:10:63:05:cd:a8:03:e8 konner@boneboy
+The key's randomart image is:
++---[RSA 2048]----+
+|. .=.            |
+|o ..o            |
+|o.+     .        |
+|oE o   o         |
+| ..   . S        |
+|   ... o         |
+|  ....o          |
+| o.. +.          |
+|...o*o           |
++-----------------+
+
+$ ssh-copy-id -i konner@192.168.0.100
+
+After being prompted for konner@192.168.0.100's password, it stated:
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'konner@192.168.0.100'"
+and check to make sure that only the key(s) you wanted were added.
+
+$ ssh konner@192.168.0.100
+This did not prompt me for a password.
+
+Next I ran as indicated in the TA slides:
+$ ssh-add
+$ ssh -X konner@192.168.0.100
+
+After running $ xterm and $ firefox but obtained an error
+opening the display.
+
+Then I created a user for my partner
+$ sudo useradd -d /home/caveman -m caveman
+$ sudo passwd eggert
+$ cd /home/caveman
+$ sudo mkdir .ssh
+$ sudo  chown -R caveman .ssh
+$ sudo chmod 700 .ssh
+
+Using $ ifconfig, I gave cavan my IP ddross for him to log into my 
+server.
+
+128.97.244.51
+
+Then he created a file on my server to make it worked. I finished my
+task behaving as the server.

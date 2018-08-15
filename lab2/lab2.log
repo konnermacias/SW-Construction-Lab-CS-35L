@@ -1,0 +1,278 @@
+Konner Macias | 004603916
+Assignment 2. Shell Scripting
+TA: Shenkar
+===================================
+First, go to seasnet server and make sure we are operating in 
+standard C:
+export LC_ALL='C'
+===================================
+Now to sort the contents and put the results into a file, I did:
+sort /usr/share/dict/words > words
+===================================
+To get the HTML page, I used:
+wget https://web.cs.ucla.edu/classes/winter18/cs35L/assign/assign2.html
+
+This created assign2.html, but to make it into a txt file, i did:
+mv assign2.html assign2.txt
+===================================
+tr -c 'A-Za-z' '[\n*]' < assign2.txt
+
+This gave me a bunch of words that had many new line characters in
+between. By looking at the man page for tr, we see that -c takes the 
+complement of the set. We see that the command [\n*] copies newline
+characters until the length of SET1. This only outputs words that have 
+A-Z or a-z and for lines who do not contain those characters to make 
+them newlines. 
+===================================
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt
+
+This gave me the same order of words except now there are no longer
+newline characters in between the words creating gaps. The -s option
+replaces each sequence of a repeated character that is listed in the
+last specified SET, with a single occurence of that character. In
+other words, it squeezes all the output from the previous case so that
+the spaces are gone.
+===================================
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort
+
+This takes all the output from the previous case and sorts each word
+in alphabetical order. There is a newline after each instance of the
+word. 
+===================================
+tr -cs 'A-Za-z' [\n*] < assign2.txt | sort -u
+
+This takes everything from the previous output but removes all 
+duplicates by using the -u option.
+===================================
+tr -cs 'A-Za-z' [\n*] < assign2.txt | sort -u | comm - words
+
+The - line is there to reference the standard input. This will compare
+each line  from the standard input against the result in words to be
+able to sort accordingly. It also appears to sort into 3 different 
+columns. The first column is the unique output of the standard input.
+The second column lists the unique output of the words file. The third
+column lists what is contained in both files.
+===================================
+tr -cs 'A-Za-z' [\n*] < assign2.txt | sort -u | comm -23 - words
+
+The -23 takes away the second and third columns of the previous output
+and so we only see the sorted unique words from the standard input.
+===================================
+Get copy of web page:
+wget http://mauimapp.com/moolelo/hwnwdseng.htm
+===================================
+Now we build a script
+#!/bin/sh
+
+# replace anything between <u></u> tags with nothing
+# replace anything between < ... > with a new line character
+# replace first column with nothing and store the result into t1
+sed -e 's/<u>//g' -e 's/<\/u>//g' -e 's/<[^>]*>/\n/g' -e 's/([^)]*)//g' > t1
+
+# this will copy t1 to h1
+cp t1 h1
+
+# removes first english word, and pipes result to have upper case
+# translated into lower case. This gets stored in t1
+sed -n '/Adopt/,/Kou/p' h1 | tr [:upper:] [:lower:] > t1
+
+# copy t1 to h1
+cp t1 h1
+
+# working with every even line and special cases to be put into t1
+sed -e '/^ *$/d' -e '1~2d' -e '/purchase/d' -e '/problems/d' h1 > t1
+
+# copy t1 to h1
+cp t1 h1
+
+# this pipes and deletes newline characters then sorts and deletes
+# duplicates and stores result in t1
+sed 's/[ |,]/\n/g' h1 | tr -s '\n' | sort -u > t1
+
+# again copies into h1
+cp t1 h1
+
+# this would match any sequence of lowercase characters and replace
+# them. It again deletes the newline character and stores result in t1
+sed -e 's/[a-z]*?//g' -e 's/[a-z]*-[a-z]*//g' h1 | tr -s '\n' > t1
+
+# copy over contents into h1
+cp t1 h1
+
+# replace ` with ' and store contents of h1 into hwords
+cat h1 | tr '`' "'" > hwords
+
+# print the output
+cat hwords
+
+# get rid of previously used t1 and h1
+rm t1 h1
+==============================
+Next we create the executable and run:
+chmod +x buildwords
+cat hwnwdseng.htm | ./buildwords > hwords
+
+This gives:
+cat: hwords: input file is output file
+
+Now hwords is set.
+==============================
+Now we can run our spell checker!
+First lets count the number of misspelled English words
+
+cat assign2.html | tr -cs 'A-Za-z' '[\n*]' |
+tr '[:upper:]' '[:lower:]' | sort -u |
+comm -23 - words > misspellEng
+
+To see the number of words,
+$ wc -w misspellEng
+
+This gives 38 misspelled English words
+==============================
+Repeat for misspelled Haiwaiian words
+cat assign2.html | tr -cs "pk\'mnwlhaeiou" '[\n*]' |
+tr '[:upper:]' '[:lower:]' |
+sort -u | comm -23 - hwords > misspellHai
+
+Then,
+wc -w misspellHai
+
+This gives 199 misspelled Haiwaiian words
+==============================
+Now we check for misspelled English words but not as Haiwaiian
+
+cat misspellEng | tr -cs "\pk'mnwlhaeiou" '[\n*]' |
+sort -u | comm -12 - hwords > misEngNotHai
+
+$ wc -w misEngNotHai
+
+Gave us 6 misspelled English words but not as Haiwaiian
+Examples:
+e
+halau
+i
+lau
+po
+wiki
+==============================
+Now check for misspelled Haiwaiian but not english
+cat misspellHai | tr -cs 'A-Za-z' '[\n*]' |
+sort -u | comm -12 - words > misHaiNotEng
+
+This gave 109 misspelled Haiwaiian words but not as English.
+
+Examples:
+a
+ail
+ain
+ake
+al
+ale
+alen
+all
+amine
+amp
+ample
+an
+aph
+aul
+awk
+e
+ea
+ee
+el
+em
+emp
+en
+ep
+epa
+h
+ha
+han
+hap
+he
+hei
+hell
+hem
+hen
+hi
+hin
+ho
+how
+howe
+i
+ia
+ie
+ile
+imp
+in
+ion
+iou
+k
+keep
+kin
+l
+lan
+le
+lea
+li
+like
+line
+link
+ll
+ln
+lo
+lowe
+m
+mail
+man
+me
+men
+mi
+ml
+mo
+mp
+n
+name
+ne
+nee
+no
+non
+nu
+num
+o
+om
+on
+one
+op
+ope
+open
+owe
+own
+p
+pe
+pell
+people
+plea
+pu
+u
+ui
+ula
+ule
+ume
+ump
+un
+uni
+w
+wa
+wan
+we
+wh
+wha
+who
+wi
+wo
+====================
+El fin
+====================
+

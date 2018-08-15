@@ -1,0 +1,169 @@
+Konner Macias | 004603916
+Assignment 4 - C programming and debugging
+TA: Shenkar
+==============================
+Build old version of coreutils as-is.
+
+$ wget https://web.cs.ucla.edu/classes/winter18/cs35L/assign/coreutils-with-bug.tar.gz
+
+To untar it,
+$ tar -xzvf coreutils-with-bug.tar.gz
+
+Now, I changed my directory to the coreutils-with-bug folder.
+
+$ cd coreutils-with-bug
+
+Then, I must have this prefix:
+$ ./configure --prefix=/u/eng/class/classkon/Documents/CS_35L/lab3/coreutils-with-bug
+
+I then ran 
+$ make; make install
+But this gave me the following error: conflicting types for 'futimens'
+
+Now we can patch this up by doing
+$ wget https://web.cs.ucla.edu/classes/winter18/cs35L/assign/coreutils.diff
+
+Then we apply the patch:
+$ patch -p0 < coreutils.dff
+Then build and install:
+$ make; make install
+
+We get no errors here.
+======================================
+Now we reproduce the bug. I created a small script called bugMe.sh in
+my lab4 directory. Here's what I put in bugMe.sh:
+
+#!/bin/bash
+
+tmp=$(mktemp -d)
+cd $tmp
+touch -d '1918-11-11 11:00 GMT' wwi-armistice
+touch now
+sleep 1
+touch now1
+TZ=UTC0 ~/Documents/CS_35L/lab4/coreutils-with-bug/bin/ls -lt --full-time wwi-armistice now now1
+cd ~/Documents/CS_35L/lab4/
+rm -fr $tmp
+======================================
+Now we run the script
+$ chmod +x bugMe.sh
+$ ./bugMe.sh
+
+Which gave:
+-rw-r--r-- 1 classkon class 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice
+-rw-r--r-- 1 classkon class 0 2018-02-08 11:45:17.573009379 +0000 now1
+-rw-r--r-- 1 classkon class 0 2018-02-08 11:45:16.569992623 +0000 now
+
+Which is the desired problem we tried to reproduce.
+
+www-armistice is in the wrong place.
+=======================================
+Now we must debug.
+
+To make sure that I can reference these files, I went to my tmp dir
+and entered:
+$ touch -d '1918-11-11 11:00 GMT' wwi-armistice
+$ touch now
+$ sleep 1
+$ touch now1
+$ TZ=UTC0 ~/Documents/CS_35L/lab4/coreutils-with-bug/bin/ls -lt --full-time wwi-armistice now now1
+
+
+While in $tmp
+$ gdb ~/Documents/CS_35L/lab4/coreutils-with-bug/src/ls
+
+Now we begin debugging!
+
+To look at all the functions, I did
+$ info functions
+
+I scanned through ls.c and found somewhere to put a breakpoint.
+$ (gdb) break compare_mtime
+
+To run what we are trying to debug I did:
+$ (gdb) r -lt --full-time wwi-armistice now now1
+
+To step into at my breakpoint I did:
+$ (gdb) si
+
+Which gave:
+
+timespec_cmp (b=..., a=...) at ../lib/timespec.h:49
+49	  return diff ? diff : a.tv_nsec - b.tv_nsec;
+
+a.tv_nsec - b.tv_nsec could lead to integer overflow!
+
+In fact, comparing the diff value between now and now1,
+$ si
+$ info locals 
+diff = 7
+
+When looking at the final output, we see a difference of 7 seconds
+between now and now1. 
+
+However, there is an obvious overflow between the seconds difference
+between the year 1918 and 2016. This is the problem.
+============================
+Let's fix the bug.
+
+I went to the lib folder in coreutils-with-bug and created a copy of
+the timespec.h file.
+
+$ cp timespec.h ~/Documents/CS_35L/lab4/timespec.h
+
+Now I changed my directory back to ~/CS_35L/lab4/ and made an edit to
+fix the problem.
+
+$ vim timespec.h
+
+Here is what I edited it to:
+static inline int
+timespec_cmp (struct timespec a, struct timespec b)
+{
+  return a.tv_sec > b.tv_sec ? 1: (a.tv_sec < b.tv_sec ? -1 : a.tv_sec - b.tv_sec);
+}
+
+Now I created the diff file
+
+$ diff -u coreutils-with-bug/lib/timespec.h timespec.h > coreutils-with-bug/patchMe.diff
+
+Now we have to get a ChangeLog
+$ emacs
+C-x 4 a
+
+Which I then put:
+2018-02-08  Konner Quentin Macias  <classkon@lnxsrv09.seas.ucla.edu>
+
+        * ~/Documents/CS_35L/lab4/coreutils-with-bug/lib/timespec.h (timespec_cmp):
+        This will prevent integer overflow and handle older times better.
+
+I created a copy of my ChangeLog and put it into the lab4.diff file.
+$ cp ChangeLog lab4.dff
+
+Now I will add in my patch.diff file into the ChangeLog
+
+$ cat patchMe.diff >> lab4.diff
+================================
+Now we must make sure the patch works.
+
+I edited the lab4.diff file because I am now working in the 
+coreutils-with-bug directory.
+
+I changed "coreutils-with-bug/lib/timespec.h" to "lib/timespec.h" only
+
+Now we apply the patch.
+$ patch -p0 < lab4.diff
+$ make
+
+Perfect, let's see if things worked on the SEASnet server.
+
+$ TZ=UTC0 ~/Documents/CS_35L/lab4/coreutils-with-bug/src/ls -lt --full-time wwi-armistice now now1
+-rw-r--r-- 1 classkon class 0 2054-12-17 17:28:16.000000000 +0000 wwi-armistice
+-rw-r--r-- 1 classkon class 0 2018-02-08 18:50:26.476861000 +0000 now1
+-rw-r--r-- 1 classkon class 0 2018-02-08 18:50:19.356224000 +0000 now
+
+The SEASnet server using a 32 bit NFS system, so this will cut off the
+first 32 bits of including the sign bit which says whether it is in 
+the past or the future.
+
+We could fix this by trying to edit the local file system.

@@ -1,0 +1,15 @@
+#!/bin/sh
+sed -e 's/<u>//g' -e 's/<\/u>//g' -e 's/<[^>]*>/\n/g' -e 's/([^)]*)//g' > t1
+cp t1 h1
+sed -n '/Adopt/,/Kou/p' h1 | tr [:upper:] [:lower:] > t1
+cp t1 h1
+sed -e '/^ *$/d' -e '1~2d' -e '/purchase/d' -e '/problems/d' h1 > t1
+cp t1 h1
+sed 's/[ |,]/\n/g' h1 | tr -s '\n' | sort -u > t1
+cp t1 h1
+sed -e 's/[a-z]*?//g' -e 's/[a-z]*-[a-z]*//g' h1 | tr -s '\n' > t1
+cp t1 h1
+cat h1 | tr '`' "'" > hwords
+cat hwords
+rm t1 h1
+
